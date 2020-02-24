@@ -1,0 +1,27 @@
+<h4>ngrok Settings</h4>
+<form class="form-horizontal" id="settings_plugin_ngrok_form">
+	<div class="control-group">
+		<label class="control-label" for="ngrokToken">{{ _('ngrok Auth Token') }}</label>
+		<div class="controls">
+			<span class="input-append">
+				<input type="text" class="input" id="ngrok_token" data-bind="value: settings.plugins.ngrok.token" />
+			</span>
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="ngrokToken">{{ _('Tunnel username') }}</label>
+		<div class="controls">
+			<span class="input-append">
+				<input type="text" class="input" id="auth_name" data-bind="value: settings.plugins.ngrok.auth_name" />
+			</span>
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="ngrokToken">{{ _('Tunnel password') }}</label>
+		<div class="controls">
+			<span class="input-append">
+				<input type="text" class="input" id="auth_pass" data-bind="value: settings.plugins.ngrok.auth_pass" />
+			</span>
+		</div>
+	</div>
+</form>
