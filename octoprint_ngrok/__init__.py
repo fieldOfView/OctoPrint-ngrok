@@ -33,9 +33,16 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			token= "",
-			auth_name= "",
-			auth_pass= ""
+			token="",
+			auth_name="",
+			auth_pass=""
+		)
+
+	def get_settings_restricted_paths(self):
+		return dict(
+			admin=[
+				['token'], ['auth_name'], ['auth_pass']
+			]
 		)
 
 	def on_settings_save(self, data):
