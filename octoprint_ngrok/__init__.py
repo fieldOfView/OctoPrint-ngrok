@@ -28,6 +28,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def __init__(self):
 		self._port = 0
 		self._tunnel_url = ""
+		self._auth_token_changed = True
 
 	##~~ SettingsPlugin mixin
 
@@ -46,19 +47,22 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		)
 
 	def on_settings_save(self, data):
-		old_data = [
+		old_data = (
 			self._settings.get(["token"]),
 			self._settings.get(["auth_name"]),
 			self._settings.get(["auth_pass"])
-		]
+		)
 
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
-		new_data = [
+		new_data = (
 			self._settings.get(["token"]),
 			self._settings.get(["auth_name"]),
 			self._settings.get(["auth_pass"])
-		]
+		)
+		if old_data[0] != new_data[0]:
+			self._auth_token_changed = True
+
 		if old_data != new_data:
 			self._ngrok_connect()
 
@@ -125,8 +129,10 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.warning("Ngrok is not fully configured")
 			return
 
-		self._logger.info("Setting ngrok auth token...")
-		ngrok.set_auth_token(self._settings.get(["token"]))
+		if self._auth_token_changed:
+			self._logger.info("Setting ngrok auth token...")
+			ngrok.kill()  # Make sure no previous token is used
+			ngrok.set_auth_token(self._settings.get(["token"]))
 
 		auth_string = "%s:%s" % (
 			encode_lib.quote(self._settings.get(["auth_name"])),
@@ -134,11 +140,13 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		)
 		
 		self._logger.info("Opening ngrok tunnel...")
-		tunnel_url = ngrok.connect(port=self._port, options = {"bind_tls":True, "auth":auth_string})
-		if tunnel_url:
-			self._tunnel_url = tunnel_url.partition("://")[2]
-			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
-
+		try:
+			tunnel_url = ngrok.connect(port=self._port, options = {"bind_tls":True, "auth":auth_string})
+			if tunnel_url:
+				self._tunnel_url = tunnel_url.partition("://")[2]
+				self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
+		except pyngrok.exception.PyngrokNgrokError:
+			self._logger.error("Could not connect with the provided API key")
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
