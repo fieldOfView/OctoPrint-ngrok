@@ -51,12 +51,6 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
-		new_data = (
-			self._settings.get(["token"]),
-			self._settings.get(["region"]),
-			self._settings.get(["auth_name"]),
-			self._settings.get(["auth_pass"])
-		)
 		if "token" in data or "region" in data:
 			self._restart_ngrok = True
 
