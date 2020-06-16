@@ -35,6 +35,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			token="",
+			region="us",
 			auth_name="",
 			auth_pass=""
 		)
@@ -49,6 +50,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def on_settings_save(self, data):
 		old_data = (
 			self._settings.get(["token"]),
+			self._settings.get(["region"]),
 			self._settings.get(["auth_name"]),
 			self._settings.get(["auth_pass"])
 		)
@@ -57,6 +59,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 		new_data = (
 			self._settings.get(["token"]),
+			self._settings.get(["region"]),
 			self._settings.get(["auth_name"]),
 			self._settings.get(["auth_pass"])
 		)
@@ -117,14 +120,15 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def _ngrok_disconnect(self):
 		self._logger.info("Closing any open ngrok tunnels")
-		for tunnel in ngrok.get_tunnels():
-			self._logger.info("Closing tunnel %s" % tunnel.public_url)
-			ngrok.disconnect(tunnel.public_url)
+		try:
+			for tunnel in ngrok.get_tunnels():
+				self._logger.info("Closing tunnel %s" % tunnel.public_url)
+				ngrok.disconnect(tunnel.public_url)
+		except pyngrok.exception.PyngrokNgrokError:
+			pass
 		self._tunnel_url = ""
 
 	def _ngrok_connect(self):
-		self._ngrok_disconnect()
-
 		if not self._settings.get(["token"]) or not self._settings.get(["auth_name"]) or not self._settings.get(["auth_pass"]):
 			self._logger.warning("Ngrok is not fully configured")
 			return
@@ -133,6 +137,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info("Setting ngrok auth token...")
 			ngrok.kill()  # Make sure no previous token is used
 			ngrok.set_auth_token(self._settings.get(["token"]))
+			self._auth_token_changed = False
+
+		self._ngrok_disconnect()
 
 		auth_string = "%s:%s" % (
 			encode_lib.quote(self._settings.get(["auth_name"])),
@@ -140,18 +147,24 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		)
 		
 		self._logger.info("Opening ngrok tunnel...")
+		options = {"bind_tls":True, "auth":auth_string}
+		if self._settings.get(["region"]):
+			options["region"] = self._settings.get(["region"])
 		try:
-			tunnel_url = ngrok.connect(port=self._port, options = {"bind_tls":True, "auth":auth_string})
-			if tunnel_url:
-				self._tunnel_url = tunnel_url.partition("://")[2]
-				self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
+			tunnel_url = ngrok.connect(port=self._port, options=options)
 		except pyngrok.exception.PyngrokNgrokError:
 			self._logger.error("Could not connect with the provided API key")
+			return
+
+		if tunnel_url:
+			self._tunnel_url = tunnel_url.partition("://")[2]
+			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
+
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
-__plugin_name__ = "Ngrok Plugin"
+__plugin_name__ = "Ngrok Tunnel"
 
 # Starting with OctoPrint 1.4.0 OctoPrint will also support to run under Python 3 in addition to the deprecated
 # Python 2. New plugins should make sure to run under both versions for now. Uncomment one of the following

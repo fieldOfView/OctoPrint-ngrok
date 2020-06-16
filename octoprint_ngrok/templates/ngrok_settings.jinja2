@@ -1,27 +1,48 @@
-<h4>ngrok Settings</h4>
+<h3>{{ _('Ngrok Tunnel') }}</h3>
 <form class="form-horizontal" id="settings_plugin_ngrok_form">
-	<div class="control-group">
-		<label class="control-label" for="ngrokToken">{{ _('ngrok Auth Token') }}</label>
-		<div class="controls">
-			<span class="input-append">
-				<input type="text" class="input" id="ngrok_token" data-bind="value: settings.plugins.ngrok.token" />
-			</span>
+	<fieldset id="settings_ngrok_general">
+		<legend>{{ _('Ngrok Settings') }}</legend>
+		<div class="control-group">
+			<label class="control-label" for="ngrokToken">{{ _('Auth Token') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="ngrok_token" data-bind="value: settings.plugins.ngrok.token" />
+				</span>
+				<span class="help-inline">{{ _('The auth token is used to authenticate you on the ngrok service and can be found by logging in to the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
+			</div>
 		</div>
-	</div>
-	<div class="control-group">
-		<label class="control-label" for="ngrokToken">{{ _('Tunnel username') }}</label>
-		<div class="controls">
-			<span class="input-append">
-				<input type="text" class="input" id="auth_name" data-bind="value: settings.plugins.ngrok.auth_name" />
-			</span>
+		<div class="control-group">
+			<label class="control-label" for="ngrokRegion">{{ _('Region') }}</label>
+			<div class="controls">
+				<select id="ngrok_region" data-bind="value: settings.plugins.ngrok.region">
+					<option value="us">United States</option>
+					<option value="eu">Europe</option>
+					<option value="ap">Asia/Pacific</option>
+					<option value="au">Australia</option>
+					<option value="sa">South America</option>
+					<option value="jp">Japan</option>
+					<option value="in">India</option>
+				</select>
+			</div>
 		</div>
-	</div>
-	<div class="control-group">
-		<label class="control-label" for="ngrokToken">{{ _('Tunnel password') }}</label>
-		<div class="controls">
-			<span class="input-append">
-				<input type="text" class="input" id="auth_pass" data-bind="value: settings.plugins.ngrok.auth_pass" />
-			</span>
+	</fieldset>
+	<fieldset id="settings_ngrok_basic_authentication">
+		<legend>{{ _('Basic Authentication') }}</legend>
+		<div class="control-group">
+			<label class="control-label" for="ngrokToken">{{ _('Tunnel username') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="auth_name" data-bind="value: settings.plugins.ngrok.auth_name" />
+				</span>
+			</div>
 		</div>
-	</div>
+		<div class="control-group">
+			<label class="control-label" for="ngrokToken">{{ _('Tunnel password') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="auth_pass" data-bind="value: settings.plugins.ngrok.auth_pass" />
+				</span>
+			</div>
+		</div>
+	</fieldset>
 </form>
