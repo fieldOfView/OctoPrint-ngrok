@@ -1,5 +1,5 @@
-# coding=utf-8
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 ### (Don't forget to remove me)
 # This is a basic skeleton for your plugin's __init__.py. You probably want to adjust the class name of your plugin
@@ -12,6 +12,8 @@ from __future__ import absolute_import
 import octoprint.plugin
 from octoprint.settings import settings
 
+import flask
+
 from pyngrok import ngrok
 from pyngrok.conf import PyngrokConfig
 
@@ -23,6 +25,8 @@ except ImportError:
 class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 				  octoprint.plugin.StartupPlugin,
 				  octoprint.plugin.ShutdownPlugin,
+				  octoprint.plugin.SimpleApiPlugin,
+				  octoprint.plugin.AssetPlugin,
 				  octoprint.plugin.TemplatePlugin):
 
 	# noinspection PyMissingConstructor
@@ -58,6 +62,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 
 	##~~ StartupPlugin mixin
+
 	def on_startup(self, host, port):
 		self._port = port
 
@@ -70,19 +75,33 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._ngrok_connect()
 
 	##~~ ShutdownPlugin mixin
+
 	def on_shutdown(self):
 		self._ngrok_disconnect()
 		ngrok.kill()
 
 
-	##~~ TemplatePlugin mixin
+	#~~ AssetPlugin
 
+	def get_assets(self):
+		return dict(
+			clientjs=["clientjs/ngrok.js"],
+			js=["js/ngrok.js"]
+		)
+
+	##~~ TemplatePlugin mixin
 	def get_template_configs(self):
 		return [dict(
 			type='settings',
 			custom_bindings=False,
 			template='ngrok_settings.jinja2'
 		)]
+
+
+	##~~ SimpleApiPlugin mixin
+
+	def on_api_get(self, request):
+		return flask.jsonify(tunnel=self._tunnel_url)
 
 	##~~ Softwareupdate hook
 
@@ -114,6 +133,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		except pyngrok.exception.PyngrokNgrokError:
 			pass
 		self._tunnel_url = ""
+		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
 	def _ngrok_connect(self):
 		if not self._settings.get(["token"]) or not self._settings.get(["auth_name"]) or not self._settings.get(["auth_pass"]):
@@ -150,6 +170,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		if tunnel_url:
 			self._tunnel_url = tunnel_url.partition("://")[2]
 			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
+			self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
