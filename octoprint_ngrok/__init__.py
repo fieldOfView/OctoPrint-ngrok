@@ -26,6 +26,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def __init__(self):
 		self._port = 0
 		self._tunnel_url = ""
+		self._ngrok_started = False
 		self._restart_ngrok = True
 
 	##~~ SettingsPlugin mixin
@@ -71,8 +72,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ ShutdownPlugin mixin
 
 	def on_shutdown(self):
-		self._ngrok_disconnect()
-		ngrok.kill()
+		if self._ngrok_started:
+			self._ngrok_disconnect()
+			ngrok.kill()
 
 
 	#~~ AssetPlugin
@@ -134,13 +136,15 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.warning("Ngrok is not fully configured")
 			return
 
-		self._ngrok_disconnect()
+		if self._ngrok_started:
+			self._ngrok_disconnect()
 
 		pyngrok_config = PyngrokConfig()
 
 		if self._restart_ngrok:
 			self._logger.info("Setting ngrok auth token & region...")
-			ngrok.kill()  # Make sure no previous token is used
+			if self._ngrok_started:
+				ngrok.kill()  # Make sure no previous token is used
 
 			pyngrok_config.auth_token = self._settings.get(["token"])
 			pyngrok_config.region = self._settings.get(["region"])
@@ -163,6 +167,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 		try:
 			tunnel_url = ngrok.connect(port=self._port, options=options, pyngrok_config=pyngrok_config)
+			self._ngrok_started = True
 		except PyngrokNgrokError:
 			self._logger.error("Could not connect with the provided API key")
 			return
