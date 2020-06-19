@@ -6,6 +6,15 @@ $(function() {
         self.settings = parameters[0];
         self.tunnelName = ko.observable('');
 
+        self.closeTunnel = function() {
+            OctoPrint.simpleApiCommand("ngrok", "close", {});
+        }
+
+        self.connectTunnel = function() {
+            self.settings.saveData();
+            OctoPrint.simpleApiCommand("ngrok", "connect", {});
+        }
+
         self.requestData = function() {
             OctoPrint.plugins.ngrok.get()
                 .done(function(response) {

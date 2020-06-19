@@ -96,6 +96,24 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	##~~ SimpleApiPlugin mixin
 
+	def get_api_commands(self):
+		return dict(
+			connect=[],
+			close=[]
+		)
+
+	def on_api_command(self, command, data):
+		if command == "connect":
+			self._logger.info("(Re-)connecting to ngrok tunnel")
+			self._ngrok_connect()
+
+		elif command == "close":
+			self._logger.info("Closing connection with ngrok")
+			if self._ngrok_started:
+				self._ngrok_disconnect()
+			ngrok.kill()
+			self._ngrok_started = False
+
 	def on_api_get(self, request):
 		return flask.jsonify(tunnel=self._tunnel_url)
 

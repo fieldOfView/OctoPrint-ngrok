@@ -1,7 +1,7 @@
 <form class="form-horizontal" id="settings_plugin_ngrok_form">
 	<fieldset id="settings_plugin_ngrok_tunnel">
 		<h3>{{ _('Tunnel status') }}</h3>
-		<div class="control-group">
+		<div class="control-group" data-bind="visible: (tunnelName() != '')">
 			<label class="control-label" for="settings_plugin_ngrok_tunnel_address">{{ _('Address') }}</label>
 			<div class="controls">
 				<span class="input-append">
@@ -15,6 +15,16 @@
 				</span>
 				<span class="help-inline">{{ _('You can also find the address of the ngrok tunnel in the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')
 					|format(dashboard_url="https://dashboard.ngrok.com/status/tunnels") }}</span>
+			</div>
+		</div>
+		<div class="control-group" data-bind="visible: (tunnelName() != '')">
+			<div class="controls">
+				<button class="btn" type="button" data-bind="click: closeTunnel">Disconnect</button>
+			</div>
+		</div>
+		<div class="control-group" data-bind="visible: (tunnelName() == '')">
+			<div class="controls">
+				<button class="btn" type="button" data-bind="click: connectTunnel">Connect</button>
 			</div>
 		</div>
 
