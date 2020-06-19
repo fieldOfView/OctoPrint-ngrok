@@ -132,7 +132,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
 	def _ngrok_connect(self):
-		if not self._settings.get(["token"]) or not self._settings.get(["auth_name"]) or not self._settings.get(["auth_pass"]):
+		if not self._settings.get(["token"]):
 			self._logger.warning("Ngrok is not fully configured")
 			return
 
@@ -151,16 +151,18 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 			self._restart_ngrok = False
 
-		auth_string = "%s:%s" % (
-			encode_lib.quote(self._settings.get(["auth_name"])),
-			encode_lib.quote(self._settings.get(["auth_pass"]))
-		)
-		
 		self._logger.info("Opening ngrok tunnel...")
 		options = dict(
-			bind_tls=True,
-			auth=auth_string
+			bind_tls=True
 		)
+
+		if  self._settings.get(["auth_name"]) and self._settings.get(["auth_pass"]):
+			auth_string = "%s:%s" % (
+				encode_lib.quote(self._settings.get(["auth_name"])),
+				encode_lib.quote(self._settings.get(["auth_pass"]))
+			)
+			options["auth"] = auth_string
+
 
 		if self._settings.get(["subdomain"]):
 			options["subdomain"] = self._settings.get(["subdomain"])
