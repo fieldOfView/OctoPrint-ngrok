@@ -1,19 +1,21 @@
 <form class="form-horizontal" id="settings_plugin_ngrok_form">
-	<fieldset id="settings_ngrok_general">
+	<fieldset id="settings_plugin_ngrok_general">
 		<legend>{{ _('Ngrok Settings') }}</legend>
 		<div class="control-group">
-			<label class="control-label" for="ngrokToken">{{ _('Auth Token') }}</label>
+			<label class="control-label" for="settings_plugin_ngrok_token">{{ _('Auth Token') }}</label>
 			<div class="controls">
 				<span class="input-append">
-					<input type="text" class="input" id="ngrok_token" data-bind="value: settings.plugins.ngrok.token" />
+					<input type="text" class="input" id="settings_plugin_ngrok_token" required="required" pattern="[A-Za-z0-9]{27}_[A-Za-z0-9]{20,21}"
+						data-bind="value: settings.plugins.ngrok.token" />
 				</span>
-				<span class="help-inline">{{ _('The auth token is used to authenticate you on the ngrok service and can be found by logging in to the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
+				<span class="help-inline">{{ _('The auth token is used to authenticate you on the ngrok service and can be found by logging in
+					to the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
 			</div>
 		</div>
 		<div class="control-group">
-			<label class="control-label" for="ngrokRegion">{{ _('Region') }}</label>
+			<label class="control-label" for="settings_plugin_ngrok_region">{{ _('Region') }}</label>
 			<div class="controls">
-				<select id="ngrok_region" data-bind="value: settings.plugins.ngrok.region">
+				<select id="settings_plugin_ngrok_region" data-bind="value: settings.plugins.ngrok.region">
 					<option value="us">United States</option>
 					<option value="eu">Europe</option>
 					<option value="ap">Asia/Pacific</option>
@@ -24,25 +26,54 @@
 				</select>
 			</div>
 		</div>
+		<div class="control-group">
+			<label class="control-label" for="settings_plugin_ngrok_subdomain">{{ _('Custom subdomain') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="settings_plugin_ngrok_subdomain" data-bind="value: settings.plugins.ngrok.sub_domain" />
+				</span>
+				<span class="help-inline">{{ _('A custom subdomain to use instead of the random generated ngrok.com subdomain.
+					Leave this empty unless you have a paid ngrok account.') }}</span>
+			</div>
+		</div>
 	</fieldset>
-	<fieldset id="settings_ngrok_basic_authentication">
+	<fieldset id="settings_plugin_ngrok_basic_authentication">
 		<legend>{{ _('Basic Authentication') }}</legend>
-		<span class="help-inline">{{ _('Basic Authentication is used to secure the communication with your OctoPrint installation over the internet. It is recommended that you choose a strong password in addition to your OctoPrint user password.') }}</span>
+		<div class="help-block">{{ _('Basic Authentication is used to secure the communication with your OctoPrint installation over the internet.
+			It is recommended that you choose a strong password in different from your OctoPrint user password.') }}</div>
 		<div class="control-group">
-			<label class="control-label" for="ngrokToken">{{ _('Username') }}</label>
+			<label class="control-label" for="settings_plugin_ngrok_auth_name">{{ _('Username') }}</label>
 			<div class="controls">
 				<span class="input-append">
-					<input type="text" class="input" id="auth_name" data-bind="value: settings.plugins.ngrok.auth_name" />
+					<input type="text" class="input" id="settings_plugin_ngrok_auth_name" required="required"
+						data-bind="value: settings.plugins.ngrok.auth_name" />
 				</span>
 			</div>
 		</div>
 		<div class="control-group">
-			<label class="control-label" for="ngrokToken">{{ _('Password') }}</label>
+			<label class="control-label" for="settings_plugin_ngrok_auth_pass">{{ _('Password') }}</label>
 			<div class="controls">
 				<span class="input-append">
-					<input type="password" class="input" id="auth_pass" data-bind="value: settings.plugins.ngrok.auth_pass" />
+					<input type="password" class="input" id="settings_plugin_ngrok_auth_pass" required="required"
+						data-bind="value: settings.plugins.ngrok.auth_pass" />
 				</span>
 			</div>
 		</div>
+	</fieldset>
+	<fieldset id="settings_plugin_ngrok_tunnel">
+		<legend>{{ _('Current tunnel') }}</legend>
+		<div class="control-group">
+			<label class="control-label" for="settings_plugin_ngrok_tunnel_address">{{ _('Address') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" disabled="disabled" id="settings_plugin_ngrok_tunnel_address" />
+					<a id="settings_plugin_ngrok_tunnel_visit" class="add-on" target="_blank">
+					    <i class="fa fa-globe"></i>
+					</a>
+				</span>
+			</div>
+		</div>
+		<div class="help-block">{{ _('You can also find the address of the currently active ngrok tunnel by logging in
+			to the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/status/tunnels") }}</div>
 	</fieldset>
 </form>

@@ -16,6 +16,7 @@ import flask
 
 from pyngrok import ngrok
 from pyngrok.conf import PyngrokConfig
+from pyngrok.exception import PyngrokNgrokError
 
 try:
 	import urllib.parse as encode_lib # Python 3
@@ -41,6 +42,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		return dict(
 			token="",
 			region="us",
+			subdomain="",
 			auth_name="",
 			auth_pass=""
 		)
@@ -130,7 +132,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			for tunnel in ngrok.get_tunnels():
 				self._logger.info("Closing tunnel %s" % tunnel.public_url)
 				ngrok.disconnect(tunnel.public_url)
-		except pyngrok.exception.PyngrokNgrokError:
+		except PyngrokNgrokError:
 			pass
 		self._tunnel_url = ""
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
@@ -161,9 +163,12 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._logger.info("Opening ngrok tunnel...")
 		options = {"bind_tls":True, "auth":auth_string}
 
+		if self._settings.get(["subdomain"]):
+			options["subdomain"] = self._settings.get(["subdomain"])
+
 		try:
 			tunnel_url = ngrok.connect(port=self._port, options=options, pyngrok_config=pyngrok_config)
-		except pyngrok.exception.PyngrokNgrokError:
+		except PyngrokNgrokError:
 			self._logger.error("Could not connect with the provided API key")
 			return
 
