@@ -89,7 +89,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def get_template_configs(self):
 		return [dict(
 			type='settings',
-			custom_bindings=False,
+			custom_bindings=True,
 			template='ngrok_settings.jinja2'
 		)]
 

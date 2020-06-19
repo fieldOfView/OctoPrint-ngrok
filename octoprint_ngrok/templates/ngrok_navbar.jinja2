@@ -1,6 +1,6 @@
 <a id="navbar_ngrok_status" class="pull-right" href="#settings_dialog" target="_blank" data-bind="
 	attr: { title: (tunnelName() != '') ? tunnelName() : _('Configure Ngrok Tunnel'), href: (tunnelName() != '') ? 'https://'+tunnelName() : '' },
-	click: function(){ if(tunnelName()=='') settingsViewModel.show('#settings_plugin_ngrok'); }
+	click: function(){ if(tunnelName()=='') settings.show('#settings_plugin_ngrok'); }
 ">
     <i class="fa fa-globe"></i>
 </a>

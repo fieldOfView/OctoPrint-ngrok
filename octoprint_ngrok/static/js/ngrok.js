@@ -3,14 +3,8 @@ $(function() {
     function NgrokViewModel(parameters) {
         var self = this;
 
-        self.settingsViewModel = parameters[0];
+        self.settings = parameters[0];
         self.tunnelName = ko.observable('');
-
-        self.tunnelName.subscribe(function(host_name) {
-            $("#settings_plugin_ngrok_tunnel_address").val(host_name);
-            var host_url = (host_name != '') ? 'https://' + host_name : '';
-            $("#settings_plugin_ngrok_tunnel_visit").attr('href', host_url);
-        });
 
         self.requestData = function() {
             OctoPrint.plugins.ngrok.get()
@@ -33,7 +27,7 @@ $(function() {
 
     OCTOPRINT_VIEWMODELS.push({
         construct: NgrokViewModel,
-        elements: ["#navbar_plugin_ngrok"],
+        elements: ["#navbar_plugin_ngrok", "#settings_plugin_ngrok"],
         dependencies: ["settingsViewModel"]
     });
 });
