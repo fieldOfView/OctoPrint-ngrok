@@ -3,6 +3,7 @@ $(function() {
     function NgrokViewModel(parameters) {
         var self = this;
 
+        self.settingsViewModel = parameters[0];
         self.tunnelName = ko.observable('');
 
         self.tunnelName.subscribe(function(host_name) {
