@@ -22,5 +22,5 @@ The Ngrok Tunnel plugin can be configured via the OctoPrint settings panel.
 
 The ngrok **auth token** is used to authenticate you on the ngrok service and can be found by logging in to the [ngrok dashboard](https://dashboard.ngrok.com/auth/your-authtoken).
 
-The plugin requires you to set up Basic Authentication on the tunnel in addition to the access control already set up on your OctoPrint instance. Any username and password combination can be chosen, but it is recommended to use a different username and password than your OctoPrint credentials, in order not to create a single point of failure.
+The plugin recommends you to set up Basic Authentication on the tunnel in addition to the access control already set up on your OctoPrint instance. Any username and password combination can be chosen, but it is recommended to use a different username and password than your OctoPrint credentials, in order not to create a single point of failure.
 
