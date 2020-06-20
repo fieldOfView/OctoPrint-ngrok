@@ -2,7 +2,7 @@
 
 This plugin creates a secure tunnel to access OctoPrint remotely. It provides a more secure alternative to using port forwarding to expose your OctoPrint instance to the internet, while giving full and secure access to the OctoPrint web interface and the OctoPrint API. The plugin uses secure tunnels provided by [ngrok](https://ngrok.com). These tunnels are encrypted via SSL and Basic Authentication to prevent snooping.
 
-Each time OctoPrint is (re-)started, the tunnel is created at a new, randomly created subdomain of ngrok.com. If you sign up for a paid account at ngrok.com, you can configure the tunnel to use a fixed subdomain.
+Each time OctoPrint is (re-)started, the tunnel is created at a new, randomly created subdomain of ngrok.io. If you sign up for a paid account at ngrok.com, you can configure the tunnel to use a fixed subdomain.
 
 You can always find the address of the currently active ngrok tunnel by logging in to the [ngrok dashboard](https://dashboard.ngrok.com/status/tunnels).
 
