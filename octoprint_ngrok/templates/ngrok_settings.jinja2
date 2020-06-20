@@ -13,8 +13,8 @@
 					    <i class="fa fa-globe"></i>
 					</a>
 				</span>
-				<span class="help-inline">{{ _('You can also find the address of the ngrok tunnel in the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')
-					|format(dashboard_url="https://dashboard.ngrok.com/status/tunnels") }}</span>
+				<span class="help-inline">{{ _('You can also find the address of the ngrok tunnel in the <a href="%%(dashboard_url)s" target="_blank">
+					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/status/tunnels") }}</span>
 			</div>
 		</div>
 		<div class="control-group" data-bind="visible: (tunnelName() != '')">
@@ -36,8 +36,8 @@
 					<input type="text" class="input" id="settings_plugin_ngrok_token" required="required"
 						data-bind="value: settings.settings.plugins.ngrok.token" />
 				</span>
-				<span class="help-inline">{{ _('The auth token can be found in the <a href="%%(dashboard_url)s">ngrok dashboard</a>.')
-					|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
+				<span class="help-inline">{{ _('The auth token can be found in the <a href="%%(dashboard_url)s" target="_blank">
+					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
 			</div>
 		</div>
 		<div class="control-group">
