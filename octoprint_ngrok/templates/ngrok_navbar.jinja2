@@ -1,12 +1,18 @@
-<a id="navbar_ngrok_status" class="pull-right" href="#settings_dialog" target="_blank" data-bind="
-	attr: { title: (tunnelName() != '') ? tunnelName() : _('Configure Ngrok Tunnel'), href: (tunnelName() != '') ? 'https://'+tunnelName() : '' },
-	click: function() {
-		if(tunnelName()=='') {
-			settings.show('#settings_plugin_ngrok');
-		} else {
-			return true;
-		}
-	 }
-">
-    <i class="fa fa-globe"></i>
+<a href="javascript:void(0)" title="{{ _('Ngrok Tunnel')|edq }}" class="dropdown-toggle" data-toggle="dropdown">
+    <i data-bind="css: (tunnelName() == '') ? 'fa fa-times-circle-o' : 'fa fa-globe'"></i>
+    <b class="caret"></b>
 </a>
+<ul class="dropdown-menu">
+	<li data-bind="css: (tunnelName() == '') ? 'disabled' : ''"><a target="_blank" data-bind="
+		attr: { href: (tunnelName() != '') ? 'https://'+tunnelName() : 'javascript:void(0)'},
+		text: (tunnelName() != '') ? tunnelName() : _('[tunnel not connected]'),
+		click: function() { return tunnelName() != '' }
+	"></a></li>
+	<li><a href="javascript:void(0)" data-bind="
+		text: (tunnelName() != '') ? _('Close tunnel') : _('Create tunnel'),
+		click: function() { if (tunnelName() != '') { closeTunnel(); } else { connectTunnel(); } }
+	"></a></li>
+
+	<li class="divider"></li>
+	<li><a href="javascript:void(0)" data-bind="click: showTunnelSettings;">{{ _('Tunnel settings...')|edq }}</a></li>
+</ul>

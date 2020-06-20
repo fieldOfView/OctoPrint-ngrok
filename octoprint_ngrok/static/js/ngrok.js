@@ -15,6 +15,10 @@ $(function() {
             OctoPrint.simpleApiCommand("ngrok", "connect", {});
         }
 
+        self.showTunnelSettings = function() {
+            self.settings.show('#settings_plugin_ngrok');
+        }
+
         self.requestData = function() {
             OctoPrint.plugins.ngrok.get()
                 .done(function(response) {
