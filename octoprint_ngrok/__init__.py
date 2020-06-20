@@ -29,6 +29,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._ngrok_started = False
 		self._restart_ngrok = True
 
+
 	##~~ SettingsPlugin mixin
 
 	def get_settings_defaults(self):
@@ -69,6 +70,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def on_after_startup(self):
 		self._ngrok_connect()
 
+
 	##~~ ShutdownPlugin mixin
 
 	def on_shutdown(self):
@@ -85,12 +87,19 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			js=["js/ngrok.js"]
 		)
 
+
 	##~~ TemplatePlugin mixin
+
 	def get_template_configs(self):
 		return [dict(
 			type='settings',
 			custom_bindings=True,
 			template='ngrok_settings.jinja2'
+		), dict(
+			type='navbar',
+			custom_bindings=True,
+			template='ngrok_navbar.jinja2',
+			classes=["dropdown"]
 		)]
 
 
@@ -117,6 +126,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def on_api_get(self, request):
 		return flask.jsonify(tunnel=self._tunnel_url)
 
+
 	##~~ Softwareupdate hook
 
 	def get_update_information(self):
@@ -135,6 +145,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 				pip="https://github.com/fieldOfView/OctoPrint-ngrok/archive/{target_version}.zip"
 			)
 		)
+
 
 	##~~ Ngrok logic
 
