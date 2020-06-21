@@ -160,12 +160,16 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
 	def _ngrok_connect(self):
-		if not self._settings.get(["token"]):
-			self._logger.warning("Ngrok is not fully configured")
-			return
-
 		if self._ngrok_started:
 			self._ngrok_disconnect()
+
+		if not self._settings.get(["token"]):
+			self._logger.warning("Ngrok is not fully configured")
+			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The auth token is not configured. An auth token is required to create a secure tunnel."))
+
+			self._restart_ngrok = True
+
+			return
 
 		pyngrok_config = PyngrokConfig()
 		pyngrok_config.log_event_callback = self.on_ngrok_log_event
