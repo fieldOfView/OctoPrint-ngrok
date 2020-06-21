@@ -32,9 +32,18 @@ $(function() {
 
         self.onDataUpdaterPluginMessage = function(plugin, data) {
             if (plugin !== "ngrok") return;
-            if (!data.hasOwnProperty("tunnel")) return;
 
-            self.tunnelName(data.tunnel);
+            if (data.hasOwnProperty("tunnel")) {
+                self.tunnelName(data.tunnel);
+            }
+            else if (data.hasOwnProperty("error")) {
+                new PNotify({
+                    title: gettext("Failed to create tunnel"),
+                    text: data.error.replace(/(?:\\r\\n|\\r|\\n)/g, "<br />"),
+                    type: "error",
+                    hide: false
+                });
+            }
         }
     }
 

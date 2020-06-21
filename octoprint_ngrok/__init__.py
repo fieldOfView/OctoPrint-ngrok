@@ -168,6 +168,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._ngrok_disconnect()
 
 		pyngrok_config = PyngrokConfig()
+		pyngrok_config.log_event_callback = self.on_ngrok_log_event
 
 		if self._restart_ngrok:
 			self._logger.info("Setting ngrok auth token & region...")
@@ -177,7 +178,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			pyngrok_config.auth_token = self._settings.get(["token"])
 			pyngrok_config.region = self._settings.get(["region"])
 
-			self._restart_ngrok = False
+			# Resettimg the _restart_ngrok flag is postponed until we know the restart was succesful
+			# because otherwise the token and region may not "take".
 
 		self._logger.info("Opening ngrok tunnel...")
 		options = dict(
@@ -207,6 +209,16 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._tunnel_url = tunnel_url.partition("://")[2]
 			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
+
+			self._restart_ngrok = False
+
+	def on_ngrok_log_event(self, log):
+		if log.lvl == "WARNING" and log.msg=="failed to start tunnel":
+			self._plugin_manager.send_plugin_message(self._identifier, dict(error=log.err))
+		elif log.lvl == "ERROR" and log.msg=="failed to auth":
+			self._plugin_manager.send_plugin_message(self._identifier, dict(error=log.err))
+		elif log.lvl == "ERROR" and log.msg=="failed to reconnect session" and "server misbehaving" in log.err:
+			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The ngrok tunnel server could not be reached"))
 
 
 __license__ = 'GNU Affero General Public License http://www.gnu.org/licenses/agpl.html'
