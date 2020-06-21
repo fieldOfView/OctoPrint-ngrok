@@ -33,7 +33,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			region="us",
 			subdomain="",
 			auth_name="",
-			auth_pass=""
+			auth_pass="",
+			auto_connect=True
 		)
 
 	def get_settings_restricted_paths(self):
@@ -49,7 +50,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		if "token" in data or "region" in data:
 			self._restart_ngrok = True
 
-		self._ngrok_connect()
+		if self._settings.get(["auto_connect"]):
+			self._ngrok_connect()
 
 
 	##~~ StartupPlugin mixin
@@ -63,7 +65,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._port = public_port
 
 	def on_after_startup(self):
-		self._ngrok_connect()
+		if self._settings.get(["auto_connect"]):
+			self._ngrok_connect()
 
 
 	##~~ ShutdownPlugin mixin
@@ -178,7 +181,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 		self._logger.info("Opening ngrok tunnel...")
 		options = dict(
-			bind_tls=True
+			bind_tls=True,
+			inspect=False
 		)
 
 		if  self._settings.get(["auth_name"]) and self._settings.get(["auth_pass"]):

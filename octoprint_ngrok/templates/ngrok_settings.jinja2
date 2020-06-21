@@ -7,10 +7,10 @@
 				<span class="input-append">
 					<input type="text" class="input" disabled="disabled" id="settings_plugin_ngrok_tunnel_address"
 						data-bind="value: (tunnelName() != '') ? tunnelName() : _('[tunnel not connected]')" />
-					<a id="settings_plugin_ngrok_tunnel_visit" class="add-on" target="_blank" data-bind="
+					<a id="settings_plugin_ngrok_tunnel_visit" class="add-on" title="{{ _('Visit tunnel') }}" target="_blank" data-bind="
 						attr: { href: (tunnelName() != '') ? 'https://' + tunnelName() : '' }
 					">
-					    <i class="fa fa-globe"></i>
+					    <i class="fa fa-link"></i>
 					</a>
 					<button class="btn btn-danger" type="button" data-bind="click: closeTunnel">{{ _('Close') }}</button>
 				</span>
@@ -29,7 +29,7 @@
 			<label class="control-label" for="settings_plugin_ngrok_token">{{ _('Auth Token') }}</label>
 			<div class="controls">
 				<span class="input-append">
-					<input type="text" class="input" id="settings_plugin_ngrok_token" required="required"
+					<input type="text" class="input input-xlarge" id="settings_plugin_ngrok_token" required="required"
 						data-bind="value: settings.settings.plugins.ngrok.token" />
 				</span>
 				<span class="help-inline">{{ _('The auth token can be found in the <a href="%%(dashboard_url)s" target="_blank">
@@ -56,7 +56,7 @@
 				<span class="input-append">
 					<input type="text" class="input" id="settings_plugin_ngrok_subdomain" data-bind="value: settings.settings.plugins.ngrok.sub_domain" />
 				</span>
-				<span class="help-inline">{{ _('A custom subdomain to use instead of the random generated ngrok.io subdomain.
+				<span class="help-inline">{{ _('A custom subdomain to use instead of the randomly generated ngrok.io subdomain.
 					Leave this empty unless you have a paid ngrok account.') }}</span>
 			</div>
 		</div>
@@ -80,6 +80,15 @@
 						data-bind="value: settings.settings.plugins.ngrok.auth_pass" />
 				</span>
 			</div>
+		</div>
+
+		<div class="control-group">
+            <div class="controls">
+                <label class="checkbox">
+                    <input type="checkbox" data-bind="checked: settings.settings.plugins.ngrok.auto_connect"> {{ _('Create a tunnel when OctoPrint starts') }}
+                </label>
+            </div>
+
 		</div>
 	</fieldset>
 </form>
