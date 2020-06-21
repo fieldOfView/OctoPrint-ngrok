@@ -117,6 +117,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 				self._ngrok_disconnect()
 			ngrok.kill()
 			self._ngrok_started = False
+			self._restart_ngrok = True
 
 	def on_api_get(self, request):
 		return flask.jsonify(tunnel=self._tunnel_url)

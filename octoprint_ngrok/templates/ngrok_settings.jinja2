@@ -12,19 +12,15 @@
 					">
 					    <i class="fa fa-globe"></i>
 					</a>
+					<button class="btn btn-danger" type="button" data-bind="click: closeTunnel">{{ _('Close') }}</button>
 				</span>
 				<span class="help-inline">{{ _('You can also find the address of the ngrok tunnel in the <a href="%%(dashboard_url)s" target="_blank">
 					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/status/tunnels") }}</span>
 			</div>
 		</div>
-		<div class="control-group" data-bind="visible: (tunnelName() != '')">
-			<div class="controls">
-				<button class="btn" type="button" data-bind="click: closeTunnel">Close tunnel</button>
-			</div>
-		</div>
 		<div class="control-group" data-bind="visible: (tunnelName() == '')">
 			<div class="controls">
-				<button class="btn" type="button" data-bind="click: connectTunnel">Create tunnel</button>
+				<button class="btn" type="button" data-bind="click: connectTunnel">{{ _('Create tunnel') }}</button>
 			</div>
 		</div>
 
@@ -65,9 +61,8 @@
 			</div>
 		</div>
 
-		<h3>{{ _('Authentication') }}</h3>
-		<div class="help-block">{{ _('Basic Authentication is used to secure the communication with your OctoPrint installation over the internet.
-			It is recommended that you choose a strong password in different from your OctoPrint user password.') }}</div>
+		<div class="help-block">{{ _('You can use Basic Authentication to secure the tunnel on top of the OctoPrint access control.
+			It is recommended that you choose a strong password different from your OctoPrint password.') }}</div>
 		<div class="control-group">
 			<label class="control-label" for="settings_plugin_ngrok_auth_name">{{ _('Username') }}</label>
 			<div class="controls">
