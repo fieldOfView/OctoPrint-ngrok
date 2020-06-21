@@ -10,11 +10,6 @@ from pyngrok import ngrok
 from pyngrok.conf import PyngrokConfig
 from pyngrok.exception import PyngrokNgrokError
 
-try:
-	import urllib.parse as encode_lib # Python 3
-except ImportError:
-	import urllib as encode_lib # Python 2
-
 class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 				  octoprint.plugin.StartupPlugin,
 				  octoprint.plugin.ShutdownPlugin,
@@ -187,8 +182,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 		if  self._settings.get(["auth_name"]) and self._settings.get(["auth_pass"]):
 			auth_string = "%s:%s" % (
-				encode_lib.quote(self._settings.get(["auth_name"])),
-				encode_lib.quote(self._settings.get(["auth_pass"]))
+				self._settings.get(["auth_name"]),
+				self._settings.get(["auth_pass"])
 			)
 			options["auth"] = auth_string
 
