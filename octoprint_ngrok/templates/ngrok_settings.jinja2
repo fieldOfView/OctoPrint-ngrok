@@ -5,9 +5,11 @@
 			<label class="control-label" for="settings_plugin_ngrok_tunnel_address">{{ _('Address') }}</label>
 			<div class="controls">
 				<span class="input-append">
-					<input type="text" class="input" disabled="disabled" id="settings_plugin_ngrok_tunnel_address"
-						data-bind="value: (tunnelName() != '') ? tunnelName() : _('[tunnel not connected]')" />
-					<a id="settings_plugin_ngrok_tunnel_visit" class="add-on" title="{{ _('Visit tunnel') }}" target="_blank" data-bind="
+					<input type="text" class="input" readonly="readonly" style="cursor:text" id="settings_plugin_ngrok_tunnel_address" data-bind="
+						value: (tunnelName() != '') ? tunnelName() : _('[tunnel not connected]'),
+						click: function() { $('#settings_plugin_ngrok_tunnel_address').select(); }
+					" />
+					<a class="btn" title="{{ _('Visit tunnel') }}" target="_blank" data-bind="
 						attr: { href: (tunnelName() != '') ? 'https://' + tunnelName() : '' }
 					">
 					    <i class="fa fa-link"></i>
