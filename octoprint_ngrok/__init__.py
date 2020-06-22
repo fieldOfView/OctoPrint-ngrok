@@ -34,7 +34,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			subdomain="",
 			auth_name="",
 			auth_pass="",
-			auto_connect=True
+			auto_connect=True,
+			trust_basic_authentication=settings().getBoolean(["accessControl", "trustBasicAuthentication"]),
 		)
 
 	def get_settings_restricted_paths(self):
@@ -46,6 +47,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+
+		if "trust_basic_authentication" in data:
+			settings().setBoolean(["accessControl", "trustBasicAuthentication"], data["trust_basic_authentication"])
 
 		if "token" in data or "region" in data:
 			self._restart_ngrok = True
@@ -164,10 +168,16 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._ngrok_disconnect()
 
 		if not self._settings.get(["token"]):
-			self._logger.warning("Ngrok is not fully configured")
+			self._logger.warning("Ngrok auth token is not configured")
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The auth token is not configured. An auth token is required to create a secure tunnel."))
 
 			self._restart_ngrok = True
+
+			return
+
+		if not (self._settings.get(["auth_name"]) and self._settings.get(["auth_pass"])):
+			self._logger.warning("Basic Auth is not configured")
+			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The username and password are not configured. Authentication is required to create a secure tunnel."))
 
 			return
 
@@ -188,16 +198,12 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._logger.info("Opening ngrok tunnel...")
 		options = dict(
 			bind_tls=True,
-			inspect=False
-		)
-
-		if  self._settings.get(["auth_name"]) and self._settings.get(["auth_pass"]):
-			auth_string = "%s:%s" % (
+			inspect=False,
+			auth="%s:%s" % (
 				self._settings.get(["auth_name"]),
 				self._settings.get(["auth_pass"])
 			)
-			options["auth"] = auth_string
-
+		)
 
 		if self._settings.get(["subdomain"]):
 			options["subdomain"] = self._settings.get(["subdomain"])

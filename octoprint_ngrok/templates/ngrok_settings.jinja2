@@ -12,7 +12,7 @@
 					<a class="btn" title="{{ _('Visit tunnel') }}" target="_blank" data-bind="
 						attr: { href: (tunnelName() != '') ? 'https://' + tunnelName() : '' }
 					">
-					    <i class="fa fa-link"></i>
+						<i class="fa fa-link"></i>
 					</a>
 					<button class="btn btn-danger" type="button" data-bind="click: closeTunnel">{{ _('Close') }}</button>
 				</span>
@@ -27,7 +27,7 @@
 		</div>
 
 		<h3>{{ _('Ngrok Settings') }}</h3>
-		<div class="control-group">
+		<div class="control-group" data-bind="css:{error: tokenIsEmpty()}">
 			<label class="control-label" for="settings_plugin_ngrok_token">{{ _('Auth Token') }}</label>
 			<div class="controls">
 				<span class="input-append">
@@ -38,6 +38,34 @@
 					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
 			</div>
 		</div>
+
+		<div class="control-group" data-bind="css:{error: nameIsEmpty()}">
+			<label class="control-label" for="settings_plugin_ngrok_auth_name">{{ _('Username') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="settings_plugin_ngrok_auth_name" required="required"
+						data-bind="value: settings.settings.plugins.ngrok.auth_name" />
+				</span>
+			</div>
+		</div>
+		<div class="control-group" data-bind="css:{error: passIsEmpty()}">
+			<label class="control-label" for="settings_plugin_ngrok_auth_pass">{{ _('Password') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="password" class="input" id="settings_plugin_ngrok_auth_pass" required="required"
+						data-bind="value: settings.settings.plugins.ngrok.auth_pass" />
+				</span>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+					<input type="checkbox" data-bind="checked: settings.settings.plugins.ngrok.trust_basic_authentication"> {{ _('Use these credentials to log in to OctoPrint') }}
+				</label>
+			</div>
+		</div>
+
 		<div class="control-group">
 			<label class="control-label" for="settings_plugin_ngrok_region">{{ _('Region') }}</label>
 			<div class="controls">
@@ -63,34 +91,12 @@
 			</div>
 		</div>
 
-		<div class="help-block">{{ _('You can use Basic Authentication to secure the tunnel on top of the OctoPrint access control.
-			It is recommended that you choose a strong password different from your OctoPrint password.') }}</div>
 		<div class="control-group">
-			<label class="control-label" for="settings_plugin_ngrok_auth_name">{{ _('Username') }}</label>
 			<div class="controls">
-				<span class="input-append">
-					<input type="text" class="input" id="settings_plugin_ngrok_auth_name" required="required"
-						data-bind="value: settings.settings.plugins.ngrok.auth_name" />
-				</span>
+				<label class="checkbox">
+					<input type="checkbox" data-bind="checked: settings.settings.plugins.ngrok.auto_connect"> {{ _('Create a tunnel when OctoPrint starts') }}
+				</label>
 			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="settings_plugin_ngrok_auth_pass">{{ _('Password') }}</label>
-			<div class="controls">
-				<span class="input-append">
-					<input type="password" class="input" id="settings_plugin_ngrok_auth_pass" required="required"
-						data-bind="value: settings.settings.plugins.ngrok.auth_pass" />
-				</span>
-			</div>
-		</div>
-
-		<div class="control-group">
-            <div class="controls">
-                <label class="checkbox">
-                    <input type="checkbox" data-bind="checked: settings.settings.plugins.ngrok.auto_connect"> {{ _('Create a tunnel when OctoPrint starts') }}
-                </label>
-            </div>
-
 		</div>
 	</fieldset>
 </form>
