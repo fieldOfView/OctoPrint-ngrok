@@ -2,7 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import octoprint.plugin
-from octoprint.settings import settings
 
 import flask
 
@@ -35,7 +34,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			auth_name="",
 			auth_pass="",
 			auto_connect=True,
-			trust_basic_authentication=settings().getBoolean(["accessControl", "trustBasicAuthentication"]),
+			trust_basic_authentication=False,
 		)
 
 	def get_settings_restricted_paths(self):
@@ -45,16 +44,27 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			]
 		)
 
+
+	def on_settings_load(self):
+		result = octoprint.plugin.SettingsPlugin.on_settings_load(self)
+
+		if "trust_basic_authentication" in result:
+			result["trust_basic_authentication"] = self._settings.global_get_boolean(["accessControl", "trustBasicAuthentication"])
+
+		return result
+
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
 		if "trust_basic_authentication" in data:
-			settings().setBoolean(["accessControl", "trustBasicAuthentication"], data["trust_basic_authentication"])
+			self._settings.global_set_boolean(["accessControl", "trustBasicAuthentication"], data["trust_basic_authentication"])
+			if data["trust_basic_authentication"]:
+				self._settings.global_set_boolean(["accessControl", "checkBasicAuthenticationPassword "], True)
 
 		if "token" in data or "region" in data:
 			self._restart_ngrok = True
 
-		if self._settings.get(["auto_connect"]):
+		if self._settings.getBoolean(["auto_connect"]):
 			self._ngrok_connect()
 
 
@@ -64,12 +74,12 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._port = port
 
 		# prefer port from discovery plugin if available, in case of a reverse proxy
-		public_port = settings().get(["plugins", "discovery", "publicPort"])
+		public_port = self._settings.global_get_int(["plugins", "discovery", "publicPort"])
 		if public_port:
 			self._port = public_port
 
 	def on_after_startup(self):
-		if self._settings.get(["auto_connect"]):
+		if self._settings.getBoolean(["auto_connect"]):
 			self._ngrok_connect()
 
 
