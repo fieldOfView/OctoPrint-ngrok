@@ -51,7 +51,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_settings_migrate(self, target, current):
 		if current is None or current < 1:
-			self._settings.set(["auth_pass"], self._obfuscate(self._settings.get(["auth_pass"])))
+			self._settings.set(["auth_pass"], self._settings.get(["auth_pass"]))  # gets obfuscated automatically
 
 	def get_settings_preprocessors(self):
 		return (
@@ -266,7 +266,10 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		return octoprint.util.to_native_str(base64.b64encode(zlib.compress(octoprint.util.to_bytes(x))))
 
 	def _deobfuscate(self, x):
-		return octoprint.util.to_native_str(zlib.decompress(base64.b64decode(octoprint.util.to_bytes(x))))
+		try:
+			return octoprint.util.to_native_str(zlib.decompress(base64.b64decode(octoprint.util.to_bytes(x))))
+		except: # before _config_version 1, the auth_pass was not obfuscated so we want the raw thing
+			return x
 
 
 __license__ = 'GNU Affero General Public License http://www.gnu.org/licenses/agpl.html'
