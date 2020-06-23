@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import octoprint.plugin
 
 import flask
+import base64
+import zlib
 
 from pyngrok import ngrok
 from pyngrok.conf import PyngrokConfig
@@ -44,16 +46,34 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			]
 		)
 
+	def get_settings_version(self):
+		return 1
+
+	def on_settings_migrate(self, target, current):
+		if current is None or current < 1:
+			self._settings.set(["auth_pass"], self._obfuscate(self._settings.get(["auth_pass"])))
+
+	def get_settings_preprocessors(self):
+		return (
+			dict(auth_pass=lambda x: self._deobfuscate(x)),  # getter preprocessors
+			dict(auth_pass=lambda x: self._obfuscate(x))     # setter preprocessors
+		)
 
 	def on_settings_load(self):
-		result = octoprint.plugin.SettingsPlugin.on_settings_load(self)
+		data = octoprint.plugin.SettingsPlugin.on_settings_load(self)
 
-		if "trust_basic_authentication" in result:
-			result["trust_basic_authentication"] = self._settings.global_get_boolean(["accessControl", "trustBasicAuthentication"])
+		if "trust_basic_authentication" in data:
+			data["trust_basic_authentication"] = self._settings.global_get_boolean(["accessControl", "trustBasicAuthentication"])
 
-		return result
+		if "auth_pass" in data:
+			data["auth_pass"] = self._deobfuscate(data["auth_pass"])
+
+		return data
 
 	def on_settings_save(self, data):
+		if "auth_pass" in data:
+			data["auth_pass"] = self._obfuscate(data["auth_pass"])
+
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
 		if "trust_basic_authentication" in data:
@@ -239,6 +259,14 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error=log.err))
 		elif log.lvl == "ERROR" and log.msg=="failed to reconnect session" and "server misbehaving" in log.err:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The ngrok tunnel server could not be reached"))
+
+
+	##~~ Utility handlers
+	def _obfuscate(self, x):
+		return octoprint.util.to_native_str(base64.b64encode(zlib.compress(octoprint.util.to_bytes(x))))
+
+	def _deobfuscate(self, x):
+		return octoprint.util.to_native_str(zlib.decompress(base64.b64decode(octoprint.util.to_bytes(x))))
 
 
 __license__ = 'GNU Affero General Public License http://www.gnu.org/licenses/agpl.html'
