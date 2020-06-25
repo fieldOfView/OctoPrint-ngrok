@@ -4,6 +4,9 @@ $(function() {
         var self = this;
 
         self.settings = parameters[0];
+        self.loginState = parameters[1];
+        self.access = parameters[2];
+
         self.tunnelName = ko.observable('');
 
         self.tokenIsEmpty = ko.observable(false);
@@ -11,6 +14,7 @@ $(function() {
         self.passIsEmpty = ko.observable(false);
 
         self._notification = undefined;
+
 
         $("#settings_plugin_ngrok_token").change(function(){
             self.tokenIsEmpty(this.value == "");
@@ -33,6 +37,9 @@ $(function() {
         }
 
         self.showTunnelSettings = function() {
+            if (!self.loginState.hasPermission(self.access.permissions.SETTINGS)) {
+                return;
+            }
             self.settings.show("#settings_plugin_ngrok");
         }
 
@@ -85,6 +92,6 @@ $(function() {
     OCTOPRINT_VIEWMODELS.push({
         construct: NgrokViewModel,
         elements: ["#navbar_plugin_ngrok", "#settings_plugin_ngrok"],
-        dependencies: ["settingsViewModel"]
+        dependencies: ["settingsViewModel", "loginStateViewModel", "accessViewModel"]
     });
 });
