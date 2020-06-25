@@ -3,7 +3,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import octoprint.plugin
 
+from octoprint.access.permissions import Permissions
+from octoprint.access.groups import USER_GROUP, ADMIN_GROUP
+
 import flask
+from flask_babel import gettext
+
 import base64
 import zlib
 
@@ -131,7 +136,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			type='navbar',
 			custom_bindings=True,
 			template='ngrok_navbar.jinja2',
-			classes=["dropdown"]
+			classes=["dropdown"],
+			data_bind="visible: loginState.hasPermissionKo(access.permissions.SETTINGS) || loginState.hasPermissionKo(access.permissions.PLUGIN_NGROK_VIEW)"
 		)]
 
 
@@ -145,19 +151,51 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_api_command(self, command, data):
 		if command == "connect":
+			if not Permissions.PLUGIN_NGROK_CONTROL.can():
+				return flask.abort(403)
+
 			self._logger.info("(Re-)connecting to ngrok tunnel")
 			self._ngrok_connect()
 
 		elif command == "close":
+			if not Permissions.PLUGIN_NGROK_CONTROL.can():
+				return flask.abort(403)
+
 			self._logger.info("Closing connection with ngrok")
 			if self._ngrok_started:
 				self._ngrok_disconnect()
+
 			ngrok.kill()
 			self._ngrok_started = False
 			self._restart_ngrok = True
 
 	def on_api_get(self, request):
+		if not Permissions.PLUGIN_NGROK_VIEW.can():
+			return flask.abort(403)
+
 		return flask.jsonify(tunnel=self._tunnel_url)
+
+
+	##~~ Permissions hook
+
+	def get_additional_permissions(self):
+		return [
+			dict(
+				key="VIEW",
+				name="View",
+				description=gettext("Allows viewing the status of the ngrok tunnel"),
+				roles=["display"],
+				default_groups=[USER_GROUP]
+			),
+			dict(
+				key="CONTROL",
+				name="Control",
+				description=gettext("Allows manually opening or closing the ngrok tunnel"),
+				roles=["manage"],
+				default_groups=[ADMIN_GROUP],
+				permissions=['PLUGIN_NGROK_VIEW']
+			)
+		]
 
 
 	##~~ Softwareupdate hook
@@ -284,6 +322,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
-		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions
 	}
 
