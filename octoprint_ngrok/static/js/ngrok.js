@@ -10,6 +10,8 @@ $(function() {
         self.nameIsEmpty = ko.observable(false);
         self.passIsEmpty = ko.observable(false);
 
+        self._notification = undefined;
+
         $("#settings_plugin_ngrok_token").change(function(){
             self.tokenIsEmpty(this.value == "");
         });
@@ -43,7 +45,6 @@ $(function() {
 
 
         self.onAfterBinding = self.onServerReconnect = function() {
-            console.log(self.settings)
             self.tokenIsEmpty(self.settings.settings.plugins.ngrok.token() == "");
             self.nameIsEmpty(self.settings.settings.plugins.ngrok.auth_name() == "");
             self.passIsEmpty(self.settings.settings.plugins.ngrok.auth_pass() == "");
@@ -56,9 +57,22 @@ $(function() {
 
             if (data.hasOwnProperty("tunnel")) {
                 self.tunnelName(data.tunnel);
+                if (
+                    self._notification !== undefined &&
+                    self._notification.state == "open" &&
+                    self._notification.options.type == "error"
+                ) {
+                    self._notification.remove();
+                }
             }
             else if (data.hasOwnProperty("error")) {
-                new PNotify({
+                if (
+                    self._notification !== undefined &&
+                    self._notification.state == "open"
+                ) {
+                    self._notification.remove();
+                }
+                self._notification = new PNotify({
                     title: gettext("Failed to create tunnel"),
                     text: data.error.replace(/(?:\\r\\n|\\r|\\n)/g, "<br />"),
                     type: "error",
