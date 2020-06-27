@@ -223,12 +223,18 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def _ngrok_disconnect(self):
 		self._logger.info("Closing any open ngrok tunnels")
+
+		pyngrok_config = PyngrokConfig()
+		pyngrok_config.auth_token = self._settings.get(["token"])
+		pyngrok_config.region = self._settings.get(["region"])
+
 		try:
 			for tunnel in ngrok.get_tunnels():
 				self._logger.info("Closing tunnel %s" % tunnel.public_url)
-				ngrok.disconnect(tunnel.public_url)
+				ngrok.disconnect(tunnel.public_url, pyngrok_config=pyngrok_config)
 		except PyngrokNgrokError:
 			pass
+
 		self._tunnel_url = ""
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
@@ -252,14 +258,13 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 		pyngrok_config = PyngrokConfig()
 		pyngrok_config.log_event_callback = self.on_ngrok_log_event
+		pyngrok_config.auth_token = self._settings.get(["token"])
+		pyngrok_config.region = self._settings.get(["region"])
 
 		if self._restart_ngrok:
 			self._logger.info("Setting ngrok auth token & region...")
 			if self._ngrok_started:
 				ngrok.kill()  # Make sure no previous token is used
-
-			pyngrok_config.auth_token = self._settings.get(["token"])
-			pyngrok_config.region = self._settings.get(["region"])
 
 			# Resettimg the _restart_ngrok flag is postponed until we know the restart was succesful
 			# because otherwise the token and region may not "take".
