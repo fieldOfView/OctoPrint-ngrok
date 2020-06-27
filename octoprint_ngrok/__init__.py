@@ -38,6 +38,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			token="",
 			region="us",
 			subdomain="",
+			hostname="",
 			auth_name="",
 			auth_pass="",
 			auto_connect=True,
@@ -275,6 +276,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 		if self._settings.get(["subdomain"]):
 			options["subdomain"] = self._settings.get(["subdomain"])
+		if self._settings.get(["hostname"]):
+			options["hostname"] = self._settings.get(["hostname"])
 
 		try:
 			tunnel_url = ngrok.connect(port=self._port, options=options, pyngrok_config=pyngrok_config)
