@@ -33,7 +33,7 @@ plugin_url = "https://github.com/fieldOfView/OctoPrint-ngrok"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ["pyngrok"]
+plugin_requires = ["pyngrok>=4.1.3"]
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
