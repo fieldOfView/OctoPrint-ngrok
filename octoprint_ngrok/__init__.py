@@ -12,6 +12,7 @@ from flask_babel import gettext
 
 import base64
 import zlib
+from threading import Timer
 
 from pyngrok import ngrok
 from pyngrok.conf import PyngrokConfig
@@ -30,6 +31,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._tunnel_url = ""
 		self._ngrok_started = False
 		self._restart_ngrok = True
+		self._attempting_connect_on_start = False
+		self._retry_connect_timer = None
 
 
 	##~~ SettingsPlugin mixin
@@ -107,6 +110,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_after_startup(self):
 		if self._settings.getBoolean(["auto_connect"]):
+			self._attempting_connect_on_start = True
 			self._ngrok_connect()
 
 
@@ -200,7 +204,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		]
 
 
-	def register_custom_events(*args, **kwargs):
+	##~~ Register custom events hook
+
+	def get_custom_events(*args, **kwargs):
 		return ["connected", "closed"]
 
 	##~~ Softwareupdate hook
@@ -244,6 +250,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
 	def _ngrok_connect(self):
+		if self._retry_connect_timer:
+			self._retry_connect_timer = None
+
 		if self._ngrok_started:
 			self._ngrok_disconnect()
 
@@ -252,12 +261,14 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The auth token is not configured. An auth token is required to create a secure tunnel."))
 
 			self._restart_ngrok = True
+			self._attempting_connect_on_start = False
 
 			return
 
 		if not (self._settings.get(["auth_name"]) and self._settings.get(["auth_pass"])):
 			self._logger.warning("Basic Auth is not configured")
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The username and password are not configured. Authentication is required to create a secure tunnel."))
+			self._attempting_connect_on_start = False
 
 			return
 
@@ -294,8 +305,10 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._ngrok_started = True
 		except PyngrokNgrokError:
 			self._logger.error("Could not connect with the provided API key")
+			self._attempting_connect_on_start = False
 			return
 
+		self._attempting_connect_on_start = False
 		if tunnel_url:
 			self._tunnel_url = tunnel_url.partition("://")[2]
 			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
@@ -310,8 +323,14 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error=log.err))
 		elif log.lvl == "ERROR" and log.msg=="failed to auth":
 			self._plugin_manager.send_plugin_message(self._identifier, dict(error=log.err))
-		elif log.lvl == "ERROR" and log.msg=="failed to reconnect session" and "server misbehaving" in log.err:
-			self._plugin_manager.send_plugin_message(self._identifier, dict(error="The ngrok tunnel server could not be reached"))
+		elif log.lvl == "ERROR" and log.msg=="failed to reconnect session":
+			if "connect: network is unreachable" in log.err and self._attempting_connect_on_start == True:
+				self._logger.warning("Failed to create tunnel in start, scheduling retry")
+				self._attempting_connect_on_start = False
+				self._retry_connect_timer = Timer(20, self._ngrok_connect)
+				self._retry_connect_timer.start()
+			elif "server misbehaving" in log.err:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(error="The ngrok tunnel server could not be reached"))
 
 
 	##~~ Utility handlers
@@ -339,6 +358,6 @@ def __plugin_load__():
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
 		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions,
-		"octoprint.events.register_custom_events": __plugin_implementation__.register_custom_events
+		"octoprint.events.register_custom_events": __plugin_implementation__.get_custom_events
 	}
 
