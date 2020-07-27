@@ -5,6 +5,7 @@ import octoprint.plugin
 
 from octoprint.access.permissions import Permissions
 from octoprint.access.groups import USER_GROUP, ADMIN_GROUP
+from octoprint.events import Events
 
 import flask
 from flask_babel import gettext
@@ -199,6 +200,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		]
 
 
+	def register_custom_events(*args, **kwargs):
+		return ["connected", "closed"]
+
 	##~~ Softwareupdate hook
 
 	def get_update_information(self):
@@ -235,6 +239,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		except PyngrokNgrokError:
 			pass
 
+		self._event_bus.fire(Events.PLUGIN_NGROK_CLOSED, self._tunnel_url)
 		self._tunnel_url = ""
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
@@ -296,6 +301,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
+			self._event_bus.fire(Events.PLUGIN_NGROK_CONNECTED, self._tunnel_url)
+
 			self._restart_ngrok = False
 
 	def on_ngrok_log_event(self, log):
@@ -331,6 +338,7 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions
+		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions,
+		"octoprint.events.register_custom_events": __plugin_implementation__.register_custom_events
 	}
 
