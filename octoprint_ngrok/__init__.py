@@ -245,7 +245,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		except PyngrokNgrokError:
 			pass
 
-		self._event_bus.fire(Events.PLUGIN_NGROK_CLOSED, self._tunnel_url)
+		self._event_bus.fire(Events.PLUGIN_NGROK_CLOSED, dict(tunnel=self._tunnel_url))
 		self._tunnel_url = ""
 		self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
@@ -314,7 +314,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
 
-			self._event_bus.fire(Events.PLUGIN_NGROK_CONNECTED, self._tunnel_url)
+			self._event_bus.fire(Events.PLUGIN_NGROK_CONNECTED, dict(tunnel=self._tunnel_url))
 
 			self._restart_ngrok = False
 
