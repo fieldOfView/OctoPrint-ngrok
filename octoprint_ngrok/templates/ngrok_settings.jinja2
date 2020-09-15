@@ -6,7 +6,7 @@
 			<div class="controls">
 				<span class="input-append">
 					<input type="text" class="input" readonly="readonly" style="cursor:text" id="settings_plugin_ngrok_tunnel_address" data-bind="
-						value: (tunnelName() != '') ? tunnelName() : _('[tunnel not connected]'),
+						value: (tunnelName() != '') ? 'https://' + tunnelName() : _('[tunnel not connected]'),
 						click: function() { $('#settings_plugin_ngrok_tunnel_address').select(); }
 					" />
 					<a class="btn" title="{{ _('Visit tunnel') }}" target="_blank" data-bind="
