@@ -68,6 +68,18 @@
 		</div>
 
 		<div class="control-group">
+			<label class="control-label" for="settings_plugin_ngrok_port">{{ _('Local port') }}</label>
+			<div class="controls">
+				<span class="input">
+					<input type="number" min="1" max="65535"
+					class="input" id="settings_plugin_ngrok_port" required="required"
+					data-bind="value: settings.settings.plugins.ngrok.port" />
+				</span>
+			</div>
+		</div>
+
+
+		<div class="control-group">
 			<label class="control-label" for="settings_plugin_ngrok_region">{{ _('Region') }}</label>
 			<div class="controls">
 				<select id="settings_plugin_ngrok_region" data-bind="value: settings.settings.plugins.ngrok.region">

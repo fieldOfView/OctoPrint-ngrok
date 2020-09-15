@@ -27,7 +27,6 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 
 	# noinspection PyMissingConstructor
 	def __init__(self):
-		self._port = 0
 		self._tunnel_url = ""
 		self._ngrok_started = False
 		self._restart_ngrok = True
@@ -40,6 +39,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			token="",
+			port=0,
 			region="us",
 			subdomain="",
 			hostname="",
@@ -101,12 +101,15 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ StartupPlugin mixin
 
 	def on_startup(self, host, port):
-		self._port = port
+		# set logical default port if a port is not set
+		if self._settings.get_int(["port"]) == 0:
+			# prefer port from discovery plugin if available, in case of a reverse proxy
+			public_port = self._settings.global_get_int(["plugins", "discovery", "publicPort"])
+			if public_port:
+				port = public_port
 
-		# prefer port from discovery plugin if available, in case of a reverse proxy
-		public_port = self._settings.global_get_int(["plugins", "discovery", "publicPort"])
-		if public_port:
-			self._port = public_port
+			self._settings.set_int(["port"], port)
+
 
 	def on_after_startup(self):
 		if self._settings.getBoolean(["auto_connect"]):
@@ -301,7 +304,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			options["hostname"] = self._settings.get(["hostname"])
 
 		try:
-			tunnel_url = ngrok.connect(port=self._port, options=options, pyngrok_config=pyngrok_config)
+			tunnel_url = ngrok.connect(port=self._settings.get_int(["port"]), options=options, pyngrok_config=pyngrok_config)
 			self._ngrok_started = True
 		except PyngrokNgrokError:
 			self._logger.error("Could not connect with the provided API key")
