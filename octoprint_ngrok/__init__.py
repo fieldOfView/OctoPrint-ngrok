@@ -47,6 +47,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			auth_pass="",
 			auto_connect=True,
 			trust_basic_authentication=False,
+			disable_local_ip_check=False,
 		)
 
 	def get_settings_restricted_paths(self):
@@ -75,6 +76,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		if "trust_basic_authentication" in data:
 			data["trust_basic_authentication"] = self._settings.global_get_boolean(["accessControl", "trustBasicAuthentication"])
 
+		if "disable_local_ip_check" in data:
+			data["disable_local_ip_check"] = not self._settings.global_get_boolean(["server", "ipCheck", "enabled"])
+
 		if "auth_pass" in data:
 			data["auth_pass"] = self._deobfuscate(data["auth_pass"])
 
@@ -90,6 +94,9 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.global_set_boolean(["accessControl", "trustBasicAuthentication"], data["trust_basic_authentication"])
 			if data["trust_basic_authentication"]:
 				self._settings.global_set_boolean(["accessControl", "checkBasicAuthenticationPassword "], True)
+
+		if "disable_local_ip_check" in data:
+			self._settings.global_set_boolean(["server", "ipCheck", "enabled"], not data["disable_local_ip_check"])
 
 		if "token" in data or "region" in data:
 			self._restart_ngrok = True
