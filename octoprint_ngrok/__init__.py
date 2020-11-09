@@ -33,6 +33,12 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._attempting_connect_on_start = False
 		self._retry_connect_timer = None
 
+		try:
+			ngrok.get_version()
+			self._legacy_ngrok = False
+		except AttributeError:
+			self._legacy_ngrok = True
+
 
 	##~~ SettingsPlugin mixin
 
@@ -311,7 +317,10 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			options["hostname"] = self._settings.get(["hostname"])
 
 		try:
-			tunnel_url = ngrok.connect(port=self._settings.get_int(["port"]), options=options, pyngrok_config=pyngrok_config)
+			if self._legacy_ngrok:
+				tunnel = ngrok.connect(port=self._settings.get_int(["port"]), options=options, pyngrok_config=pyngrok_config)  # type:str
+			else:
+				tunnel = ngrok.connect(addr=self._settings.get_int(["port"]), pyngrok_config=pyngrok_config, **options)  # type:NgrokTunnel
 			self._ngrok_started = True
 		except PyngrokNgrokError:
 			self._logger.error("Could not connect with the provided API key")
@@ -319,7 +328,11 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			return
 
 		self._attempting_connect_on_start = False
-		if tunnel_url:
+		if tunnel:
+			if self._legacy_ngrok:
+				tunnel_url = tunnel
+			else:
+				tunnel_url = tunnel.public_url
 			self._tunnel_url = tunnel_url.partition("://")[2]
 			self._logger.info("ngrok tunnel: %s" % self._tunnel_url)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(tunnel=self._tunnel_url))
