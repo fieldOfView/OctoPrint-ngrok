@@ -33,7 +33,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 		self._attempting_connect_on_start = False
 		self._retry_connect_timer = None
 
-		if ngrok.__version__ >= '5.0.0'
+		if ngrok.__version__ >= '5.0.0':
 			self._legacy_ngrok = False
 		else:
 			self._legacy_ngrok = True
