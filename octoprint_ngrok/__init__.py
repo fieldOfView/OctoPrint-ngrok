@@ -53,6 +53,7 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			auto_connect=True,
 			trust_basic_authentication=False,
 			disable_local_ip_check=False,
+			show_qr_code=False,
 		)
 
 	def get_settings_restricted_paths(self):

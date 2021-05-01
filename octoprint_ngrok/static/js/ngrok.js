@@ -47,6 +47,9 @@ $(function() {
             OctoPrint.plugins.ngrok.get()
                 .done(function(response) {
                     self.tunnelName(response.tunnel);
+                    if(response.tunnel !== '') {
+                        $('#ngrok_qrcode').empty().qrcode({text: response.tunnel});
+                    }
                 });
         };
 
@@ -55,7 +58,6 @@ $(function() {
             self.tokenIsEmpty(self.settings.settings.plugins.ngrok.token() == "");
             self.nameIsEmpty(self.settings.settings.plugins.ngrok.auth_name() == "");
             self.passIsEmpty(self.settings.settings.plugins.ngrok.auth_pass() == "");
-
             self.requestData();
         };
 
@@ -64,6 +66,9 @@ $(function() {
 
             if (data.hasOwnProperty("tunnel")) {
                 self.tunnelName(data.tunnel);
+                if(data.tunnel !== '') {
+                    $('#ngrok_qrcode').empty().qrcode({text: data.tunnel});
+                }
                 if (
                     self._notification !== undefined &&
                     self._notification.state == "open" &&
