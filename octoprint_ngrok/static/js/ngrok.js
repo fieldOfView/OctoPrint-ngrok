@@ -48,7 +48,7 @@ $(function() {
                 .done(function(response) {
                     self.tunnelName(response.tunnel);
                     if(response.tunnel !== '') {
-                        $('#ngrok_qrcode').empty().qrcode({text: "https://" + response.tunnel});
+                        $('#ngrok_qrcode').empty().qrcode({size: 180, text: "https://" + response.tunnel});
                     }
                 });
         };
@@ -67,7 +67,7 @@ $(function() {
             if (data.hasOwnProperty("tunnel")) {
                 self.tunnelName(data.tunnel);
                 if(data.tunnel !== '') {
-                    $('#ngrok_qrcode').empty().qrcode({text: "https://" + data.tunnel});
+                    $('#ngrok_qrcode').empty().qrcode({size: 180, text: "https://" + data.tunnel});
                 }
                 if (
                     self._notification !== undefined &&

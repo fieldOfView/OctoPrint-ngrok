@@ -14,7 +14,7 @@
 	<li data-bind="
 		css: (tunnelName() == '') ? 'disabled' : '',
 		visible: $root.loginState.hasPermissionKo($root.access.permissions.PLUGIN_NGROK_VIEW)
-	"><div style="padding: 10px;" id="ngrok_qrcode" data-bind="visible: settings.settings.plugins.ngrok.show_qr_code() && tunnelName() != ''"></div></li>
+	"><div id="ngrok_qrcode" data-bind="visible: settings.settings.plugins.ngrok.show_qr_code() && tunnelName() != ''"></div></li>
 	<li data-bind="visible: $root.loginState.hasPermissionKo($root.access.permissions.PLUGIN_NGROK_CONTROL)">
 		<a href="javascript:void(0)" data-bind="
 			text: (tunnelName() != '') ? _('Close tunnel') : _('Create tunnel'),

@@ -143,7 +143,8 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 	def get_assets(self):
 		return dict(
 			clientjs=["clientjs/ngrok.js"],
-			js=["js/ngrok.js"]
+			js=["js/ngrok.js"],
+			css=["css/ngrok.css"]
 		)
 
 
