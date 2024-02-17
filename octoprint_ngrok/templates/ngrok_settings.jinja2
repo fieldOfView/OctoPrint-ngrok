@@ -109,11 +109,10 @@
 				<span class="input">
 					<input type="text" class="input" id="settings_plugin_ngrok_subdomain" data-bind="value: settings.settings.plugins.ngrok.hostname" />
 				</span>
-				<span class="badge badge-info" title="{{ _('A \'pro\' or better subscription is required for this feature')|edq }}">pro</span>
 				<span class="help-inline">
 					{{ _('Use a custom domain instead of ngrok.io. <a href="%%(docs_url)s" target="_blank">Additional
 						configuration</a> required.')|format(docs_url="https://ngrok.com/docs#http-custom-domains") }}<br>
-					{{ _('Leave both these empty unless you have a paid ngrok account.') }}
+					{{ _('Use your provided single static domain here with the free account, otherwise this feature requires an upgraded subscription.') }}
 				</span>
 			</div>
 		</div>
