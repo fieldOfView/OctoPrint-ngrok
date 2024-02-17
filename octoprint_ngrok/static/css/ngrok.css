@@ -1,3 +1,11 @@
 #ngrok_qrcode {
   padding: 3px 20px;
 }
+
+#settings_plugin_ngrok_form div.allowed-emails > div.row-fluid {
+  padding-top: 5px;
+}
+
+#settings_plugin_ngrok_form div.allowed-domains > div.row-fluid {
+  padding-top: 5px;
+}

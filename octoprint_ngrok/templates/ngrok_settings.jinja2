@@ -17,7 +17,7 @@
 					<button class="btn btn-danger" type="button" data-bind="click: closeTunnel">{{ _('Close') }}</button>
 				</span>
 				<span class="help-inline">{{ _('You can also find the address of the ngrok tunnel in the <a href="%%(dashboard_url)s" target="_blank">
-					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/status/tunnels") }}</span>
+					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/cloud-edge/endpoints") }}</span>
 			</div>
 		</div>
 		<div class="control-group" data-bind="visible: (tunnelName() == '')">
@@ -35,7 +35,7 @@
 						data-bind="value: settings.settings.plugins.ngrok.token" />
 				</span>
 				<span class="help-inline">{{ _('The auth token can be found in the <a href="%%(dashboard_url)s" target="_blank">
-					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/auth/your-authtoken") }}</span>
+					ngrok dashboard</a>.')|format(dashboard_url="https://dashboard.ngrok.com/get-started/your-authtoken") }}</span>
 			</div>
 		</div>
 
@@ -64,6 +64,57 @@
 					<input type="checkbox" data-bind="checked: settings.settings.plugins.ngrok.trust_basic_authentication"> {{ _('Use these credentials to log in to OctoPrint.') }}
 				</label>
 				<span class="help-inline">{{ _('It is not recommended to use this option with credentials for an admin account.') }}</span>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+					<input type="checkbox" data-bind="checked: settings.settings.plugins.ngrok.use_oauth"> {{ _('Use OAuth') }}
+				</label>
+				<span class="help-inline">{{ _('Use this option to configure advanced authentication methods.') }} <a href="https://ngrok.com/docs/http/oauth/" target="_blank">ngrok docs</a></span>
+			</div>
+		</div>
+
+		<div class="control-group" data-bind="visible:settings.settings.plugins.ngrok.use_oauth">
+			<label class="control-label" for="settings_plugin_ngrok_oauth_provider">{{ _('OAuth Provider') }}</label>
+			<div class="controls">
+				<span class="input">
+					<input type="text" class="input" id="settings_plugin_ngrok_oauth_provider" data-bind="value: settings.settings.plugins.ngrok.oauth_provider" />
+				</span>
+			</div>
+		</div>
+
+		<div class="control-group" data-bind="visible:settings.settings.plugins.ngrok.use_oauth">
+			<label class="control-label" for="settings_plugin_ngrok_oauth_allow_domains">{{ _('Allowed Domains') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="settings_plugin_ngrok_oauth_allow_domains" />
+					<button class="btn btn-primary" type="button" data-bind="click: addAllowedDomain"><i class="fas fa-plus"></i></button>
+				</span>
+				<div class="row-fluid allowed-domains" data-bind="foreach: settings.settings.plugins.ngrok.oauth_allow_domains">
+					<div class="row-fluid">
+						<div class="span10" data-bind="text: $data"></div><div class="span2"><button class="btn btn-danger" type="button" data-bind="click: $root.removeAllowedDomain"><i class="far fa-trash-alt"></i></button></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="control-group" data-bind="visible:settings.settings.plugins.ngrok.use_oauth">
+			<label class="control-label" for="settings_plugin_ngrok_oauth_allow_emails">{{ _('Allowed Emails') }}</label>
+			<div class="controls">
+				<span class="input-append">
+					<input type="text" class="input" id="settings_plugin_ngrok_oauth_allow_emails" />
+					<button class="btn btn-primary" type="button" data-bind="click: addAllowedEmail"><i class="fas fa-plus"></i></button>
+				</span>
+				<div class="row-fluid allowed-emails" data-bind="foreach: settings.settings.plugins.ngrok.oauth_allow_emails">
+					<div class="row-fluid">
+						<span class="input-append">
+							<input type="text" class="input" data-bind="value: $data" readonly />
+							<button class="btn btn-danger" type="button" data-bind="click: $root.removeAllowedEmail"><i class="far fa-trash-alt"></i></button>
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -109,11 +160,10 @@
 				<span class="input">
 					<input type="text" class="input" id="settings_plugin_ngrok_subdomain" data-bind="value: settings.settings.plugins.ngrok.hostname" />
 				</span>
-				<span class="badge badge-info" title="{{ _('A \'pro\' or better subscription is required for this feature')|edq }}">pro</span>
 				<span class="help-inline">
 					{{ _('Use a custom domain instead of ngrok.io. <a href="%%(docs_url)s" target="_blank">Additional
 						configuration</a> required.')|format(docs_url="https://ngrok.com/docs#http-custom-domains") }}<br>
-					{{ _('Leave both these empty unless you have a paid ngrok account.') }}
+					{{ _('Use your provided single static domain here with the free account, otherwise this feature requires an upgraded subscription.') }}
 				</span>
 			</div>
 		</div>

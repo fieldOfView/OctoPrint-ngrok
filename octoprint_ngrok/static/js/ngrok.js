@@ -26,9 +26,30 @@ $(function() {
             self.passIsEmpty(this.value == "");
         });
 
-
         self.closeTunnel = function() {
             OctoPrint.simpleApiCommand("ngrok", "close", {});
+        }
+
+        self.addAllowedDomain = function() {
+            if(self.settings.settings.plugins.ngrok.oauth_allow_domains().indexOf($("#settings_plugin_ngrok_oauth_allow_domains").val()) < 0) {
+                self.settings.settings.plugins.ngrok.oauth_allow_domains.push($("#settings_plugin_ngrok_oauth_allow_domains").val());
+                $("#settings_plugin_ngrok_oauth_allow_domains").val('');
+            }
+        }
+
+        self.addAllowedEmail = function() {
+            if(self.settings.settings.plugins.ngrok.oauth_allow_emails().indexOf($("#settings_plugin_ngrok_oauth_allow_emails").val()) < 0) {
+                self.settings.settings.plugins.ngrok.oauth_allow_emails.push($("#settings_plugin_ngrok_oauth_allow_emails").val());
+                $("#settings_plugin_ngrok_oauth_allow_emails").val('');
+            }
+        }
+
+        self.removeAllowedDomain = function(data) {
+            self.settings.settings.plugins.ngrok.oauth_allow_domains.remove(data);
+        }
+
+        self.removeAllowedEmail = function(data) {
+            self.settings.settings.plugins.ngrok.oauth_allow_emails.remove(data);
         }
 
         self.connectTunnel = function() {
