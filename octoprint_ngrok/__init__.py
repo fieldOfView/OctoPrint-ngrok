@@ -54,6 +54,10 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			trust_basic_authentication=False,
 			disable_local_ip_check=False,
 			show_qr_code=False,
+			use_oauth=False,
+			oauth_provider="",
+			oauth_allow_domains=[],
+			oauth_allow_emails=[],
 		)
 
 	def get_settings_restricted_paths(self):
@@ -316,6 +320,14 @@ class NgrokPlugin(octoprint.plugin.SettingsPlugin,
 			options["subdomain"] = self._settings.get(["subdomain"])
 		if self._settings.get(["hostname"]):
 			options["hostname"] = self._settings.get(["hostname"])
+		
+		if self._settings.get_boolean(["use_oauth"]):
+			del options["auth"]
+			options["oauth"] = {"provider": self._settings.get(["oauth_provider"])}
+			if self._settings.get(["oauth_allow_domains"]):
+				options["oauth"]["allow_domains"] = self._settings.get(["oauth_allow_domains"])
+			if self._settings.get(["oauth_allow_emails"]):
+				options["oauth"]["allow_emails"] = self._settings.get(["oauth_allow_emails"])
 
 		try:
 			if self._legacy_ngrok:
